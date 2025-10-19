@@ -117,6 +117,20 @@
                 0 6px 0 #ffa8cc,
                 0 0 20px rgba(255, 107, 157, 0.8) !important;
         }
+                .title-4d {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #fff !important;
+            text-align: center;
+            margin-bottom: 30px;
+            transform-style: preserve-3d;
+            animation: text3D 8s ease-in-out infinite;
+            text-shadow: 
+                0 2px 0 #ff6b9d,
+                0 4px 0 #ff8fab,
+                0 6px 0 #ffa8cc,
+                0 0 20px rgba(255, 107, 157, 0.8) !important;
+        }
 
         @keyframes text3D {
             0%, 100% { 
@@ -215,6 +229,13 @@
             border: 2px solid rgba(255, 255, 255, 0.4) !important;
             backdrop-filter: blur(8px);
             overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .floating-img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 35px rgba(255, 107, 157, 0.8) !important;
         }
 
         .floating-img video {
@@ -222,6 +243,7 @@
             height: 100%;
             object-fit: cover;
             border-radius: 10px;
+            pointer-events: none; /* Prevent video controls */
         }
 
         .floating-img img {
@@ -412,6 +434,81 @@
             display: none;
         }
 
+        /* Video Modal */
+        .video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .video-modal.active {
+            display: flex;
+        }
+
+        .video-modal-content {
+            position: relative;
+            width: 90%;
+            max-width: 800px;
+            height: auto;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(255, 107, 157, 0.5);
+        }
+
+        .video-modal video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .video-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 107, 157, 0.8);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+
+        .video-modal-close:hover {
+            background: rgba(255, 107, 157, 1);
+            transform: scale(1.1);
+        }
+
+        /* Mobile video modal adjustments */
+        @media (max-width: 768px) {
+            .video-modal-content {
+                width: 95%;
+                margin: 20px;
+            }
+            
+            .video-modal-close {
+                top: 10px;
+                right: 10px;
+                width: 35px;
+                height: 35px;
+                font-size: 1.2rem;
+            }
+        }
+
         /* Mobile Optimizations */
         @media (max-width: 768px) {
             body {
@@ -495,8 +592,8 @@
             </div>
         </div>
 
-        <p class="text-3d">Chúc bé iu của a mãi hạnh phúc 🌸</p>
-
+        <p class="text-3d"></p>
+        <h3 class="title-4d">💖Chúc bé iu của a mãi hạnh phúc bên anh 💖</h3>
         <!-- Audio Section -->
         <div class="audio-section">
             <div class="audio-player">
@@ -525,11 +622,14 @@
        
         <!-- Floating 3D Images -->
         <div class="floating-images">
-            <div class="floating-img">
+            <div class="floating-img video-container" data-video-src="https://res.cloudinary.com/di6d1g736/video/upload/v1760865795/vd_hjvuy5.mp4">
                 <video autoplay muted loop playsinline>
                     <source src="https://res.cloudinary.com/di6d1g736/video/upload/v1760865795/vd_hjvuy5.mp4" type="video/mp4">
                     🌊
                 </video>
+                <div class="video-overlay">
+                    <span>🎬</span>
+                </div>
             </div>
             <div class="floating-img">
                 <img src="img/dc.jpg" alt="Ảnh DC">
@@ -547,8 +647,69 @@
         </video>
     </div>
 
+    <!-- Video Modal -->
+    <div class="video-modal" id="videoModal">
+        <div class="video-modal-content">
+            <button class="video-modal-close" id="closeModal">&times;</button>
+            <video id="modalVideo" controls playsinline>
+                <source src="" type="video/mp4">
+            </video>
+        </div>
+    </div>
+
     <script>
         let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // Video Modal functionality
+        function initVideoModal() {
+            const videoContainer = document.querySelector('.video-container');
+            const modal = document.getElementById('videoModal');
+            const modalVideo = document.getElementById('modalVideo');
+            const closeModal = document.getElementById('closeModal');
+            
+            // Open video modal when clicking on video container
+            if (videoContainer) {
+                videoContainer.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const videoSrc = this.getAttribute('data-video-src');
+                    modalVideo.querySelector('source').src = videoSrc;
+                    modalVideo.load();
+                    modal.classList.add('active');
+                    
+                    // Play video in modal
+                    modalVideo.play();
+                });
+            }
+            
+            // Close modal
+            closeModal.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                modal.classList.remove('active');
+                modalVideo.pause();
+                modalVideo.currentTime = 0;
+            });
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                    modalVideo.pause();
+                    modalVideo.currentTime = 0;
+                }
+            });
+            
+            // Close modal with ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    modal.classList.remove('active');
+                    modalVideo.pause();
+                    modalVideo.currentTime = 0;
+                }
+            });
+        }
         
         // Audio control functions
         function initAudioControls() {
@@ -592,12 +753,15 @@
                     startVisualizer();
                 }).catch(() => {
                     // Fallback for autoplay restrictions
-                    document.addEventListener('touchend', function autoPlay() {
-                        video.play().then(() => {
-                            playBtn.innerHTML = '⏸';
-                            startVisualizer();
-                        });
-                        document.removeEventListener('touchend', autoPlay);
+                    document.addEventListener('touchend', function autoPlay(e) {
+                        // Only start audio if not clicking on video container
+                        if (!e.target.closest('.video-container')) {
+                            video.play().then(() => {
+                                playBtn.innerHTML = '⏸';
+                                startVisualizer();
+                            });
+                            document.removeEventListener('touchend', autoPlay);
+                        }
                     }, { once: true });
                 });
             }, 2000);
@@ -666,13 +830,17 @@
             setTimeout(() => {
                 create3DBackground();
                 initAudioControls();
+                initVideoModal();
             }, isMobile ? 1000 : 500);
         });
 
         // Prevent default touch behaviors that might cause issues
         document.addEventListener('touchstart', function(e) {
-            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
-                // Don't prevent default for controls
+            if (e.target.tagName !== 'INPUT' && 
+                e.target.tagName !== 'BUTTON' && 
+                !e.target.closest('.video-container') &&
+                !e.target.closest('.video-modal')) {
+                // Don't prevent default for controls and video elements
             }
         }, { passive: true });
 
